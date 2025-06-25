@@ -132,7 +132,7 @@
       const timeStr = date.toLocaleTimeString();
       const entry = document.createElement('div');
       entry.className = 'roll-entry';
-      entry.textContent = `${timeStr} — ${name} rolled: ${value}`;
+      entry.textContent = `${name} rolled: ${value}`;
       rollHistory.appendChild(entry);
       rollHistory.scrollTop = rollHistory.scrollHeight;
     }
