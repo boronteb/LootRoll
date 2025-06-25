@@ -1,30 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>WoW Style Roll</title>
-
-  <!-- Google Fonts Fallback -->
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-  <script>
-    const firebaseConfig = {
-  apiKey: "AIzaSyDFgQiYfTVVmCBLMxjMUKj1kpKTbhs7S6E",
-  authDomain: "wow-loot-roll.firebaseapp.com",
-  databaseURL: "https://wow-loot-roll-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "wow-loot-roll",
-  storageBucket: "wow-loot-roll.firebasestorage.app",
-  messagingSenderId: "132696286726",
-  appId: "1:132696286726:web:41d97a62f99759509ac587"
-};
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-  </script>
 
   <style>
     @font-face {
@@ -35,7 +13,7 @@
     }
 
     body {
-      font-family: 'Friz Quadrata', 'Cinzel', serif;
+      font-family: 'Friz Quadrata', serif;
       background-image: url('https://cdnb.artstation.com/p/assets/images/images/040/588/141/large/lionel-schramm-paint-light.jpg?1629301001');
       background-size: cover;
       background-position: center center;
@@ -60,7 +38,7 @@
       margin: 10px;
       border-radius: 6px;
       border: none;
-      font-family: 'Friz Quadrata', 'Cinzel', serif;
+      font-family: 'Friz Quadrata', serif;
     }
 
     input {
@@ -77,6 +55,11 @@
       background-color: #45a049;
     }
 
+    #resetRollsBtn {
+      background-color: #d9534f;
+      margin-left: 10px;
+    }
+
     #rollHistory {
       margin-top: 30px;
       text-align: left;
@@ -87,6 +70,8 @@
       padding: 15px;
       border-radius: 10px;
       font-size: 18px;
+      max-height: 300px;
+      overflow-y: auto;
     }
 
     .roll-entry {
@@ -96,49 +81,85 @@
 
     h1 {
       font-size: 36px;
-      color: #ffd700;
       margin-bottom: 10px;
     }
   </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
-
   <div class="overlay">
-    <h1>/roll 1-100</h1>
-    <input type="text" id="playerName" placeholder="Enter player name">
-    <button onclick="roll()">Roll</button>
+    <h1>WoW Style Roll</h1>
+
+    <input id="nameInput" type="text" placeholder="Enter your name" />
+    <button id="rollBtn">Roll</button>
+    <button id="resetRollsBtn">Reset Rolls</button>
+
+    <div id="rollHistory"></div>
   </div>
 
-  <div id="rollHistory"></div>
-
   <script>
-    const rollsRef = db.ref("rolls");
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDFgQiYfTVVmCBLMxjMUKj1kpKTbhs7S6E",
+      authDomain: "wow-loot-roll.firebaseapp.com",
+      databaseURL: "https://wow-loot-roll-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "wow-loot-roll",
+      storageBucket: "wow-loot-roll.firebasestorage.app",
+      messagingSenderId: "132696286726",
+      appId: "1:132696286726:web:41d97a62f99759509ac587"
+    };
 
-    function roll() {
-      const player = document.getElementById('playerName').value || 'Player';
-      const rollValue = Math.floor(Math.random() * 100) + 1;
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-      // Push roll to Firebase
-      rollsRef.push({
-        name: player,
-        value: rollValue,
-        time: Date.now()
-      });
-    }
+    const rollBtn = document.getElementById('rollBtn');
+    const nameInput = document.getElementById('nameInput');
+    const rollHistory = document.getElementById('rollHistory');
+    const resetBtn = document.getElementById('resetRollsBtn');
 
-    // Listen for new rolls and update UI
-    rollsRef.on("child_added", (snapshot) => {
-      const data = snapshot.val();
-      const rollText = `${data.name} rolls a ${data.value} (1-100)`;
+    // Listen for new rolls in realtime
+    db.ref('rolls').on('child_added', (snapshot) => {
+      const roll = snapshot.val();
+      addRollToScreen(roll.name, roll.value, roll.time);
+    });
 
-      const history = document.getElementById('rollHistory');
+    function addRollToScreen(name, value, timestamp) {
+      const date = new Date(timestamp);
+      const timeStr = date.toLocaleTimeString();
       const entry = document.createElement('div');
       entry.className = 'roll-entry';
-      entry.textContent = rollText;
+      entry.textContent = `${timeStr} — ${name} rolled: ${value}`;
+      rollHistory.appendChild(entry);
+      rollHistory.scrollTop = rollHistory.scrollHeight;
+    }
 
-      history.prepend(entry);
+    // Roll button click
+    rollBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim() || 'Unknown';
+      const value = Math.floor(Math.random() * 100) + 1;
+      const time = Date.now();
+
+      // Save to Firebase
+      db.ref('rolls').push({ name, value, time });
+    });
+
+    // Reset Rolls button click - clears all rolls for everyone
+    resetBtn.addEventListener('click', () => {
+      if (confirm("Are you sure you want to reset all rolls? This will clear rolls for everyone.")) {
+        db.ref('rolls').remove()
+          .then(() => {
+            alert("All rolls have been reset.");
+            rollHistory.innerHTML = '';
+          })
+          .catch(error => {
+            alert("Error resetting rolls: " + error.message);
+          });
+      }
     });
   </script>
-
 </body>
 </html>
