@@ -1,1 +1,1 @@
-Loot Roll v2
+Loot Roll
