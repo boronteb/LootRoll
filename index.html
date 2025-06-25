@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WoW Style Roll</title>
+
+  <!-- Fallback Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    @font-face {
+      font-family: 'Friz Quadrata';
+      src: url('FrizQuadrataRegular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      font-family: 'Friz Quadrata', 'Cinzel', serif;
+      background-image: url('https://cdnb.artstation.com/p/assets/images/images/040/588/141/large/lionel-schramm-paint-light.jpg?1629301001');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: #f1f1f1;
+      text-align: center;
+      padding-top: 100px;
+      margin: 0;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      border-radius: 6px;
+      border: none;
+      font-family: 'Friz Quadrata', 'Cinzel', serif;
+    }
+
+    input {
+      width: 200px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #rollHistory {
+      margin-top: 30px;
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 18px;
+    }
+
+    .roll-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    h1 {
+      font-size: 36px;
+      color: #ffd700;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay">
+    <h1>/roll 1-100</h1>
+    <input type="text" id="playerName" placeholder="Enter player name">
+    <button onclick="roll()">Roll</button>
+  </div>
+
+  <div id="rollHistory"></div>
+
+  <script>
+    function roll() {
+      const player = document.getElementById('playerName').value || 'Player';
+      const rollValue = Math.floor(Math.random() * 100) + 1;
+      const rollText = `${player} rolls a ${rollValue} (1-100)`;
+
+      const history = document.getElementById('rollHistory');
+      const entry = document.createElement('div');
+      entry.className = 'roll-entry';
+      entry.textContent = rollText;
+
+      history.prepend(entry);
+    }
+  </script>
+
+</body>
+</html>
+
