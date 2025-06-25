@@ -101,7 +101,7 @@
   </div>
 
   <script>
-    // Your Firebase configuration
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDFgQiYfTVVmCBLMxjMUKj1kpKTbhs7S6E",
       authDomain: "wow-loot-roll.firebaseapp.com",
@@ -112,7 +112,7 @@
       appId: "1:132696286726:web:41d97a62f99759509ac587"
     };
 
-    // Initialize Firebase
+    // Init
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -121,15 +121,13 @@
     const rollHistory = document.getElementById('rollHistory');
     const resetBtn = document.getElementById('resetRollsBtn');
 
-    // Listen for new rolls in realtime
+    // Listen for new rolls
     db.ref('rolls').on('child_added', (snapshot) => {
       const roll = snapshot.val();
-      addRollToScreen(roll.name, roll.value, roll.time);
+      addRollToScreen(roll.name, roll.value);
     });
 
-    function addRollToScreen(name, value, timestamp) {
-      const date = new Date(timestamp);
-      const timeStr = date.toLocaleTimeString();
+    function addRollToScreen(name, value) {
       const entry = document.createElement('div');
       entry.className = 'roll-entry';
       entry.textContent = `${name} rolled: ${value}`;
@@ -137,19 +135,18 @@
       rollHistory.scrollTop = rollHistory.scrollHeight;
     }
 
-    // Roll button click
+    // Roll handler
     rollBtn.addEventListener('click', () => {
       const name = nameInput.value.trim() || 'Unknown';
       const value = Math.floor(Math.random() * 100) + 1;
       const time = Date.now();
 
-      // Save to Firebase
       db.ref('rolls').push({ name, value, time });
     });
 
-    // Reset Rolls button click - clears all rolls for everyone
+    // Reset handler
     resetBtn.addEventListener('click', () => {
-      if (confirm("Are you sure you want to reset all rolls? This will clear rolls for everyone.")) {
+      if (confirm("Are you sure you want to reset all rolls?")) {
         db.ref('rolls').remove()
           .then(() => {
             alert("All rolls have been reset.");
