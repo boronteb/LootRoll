@@ -112,7 +112,7 @@
       appId: "1:132696286726:web:41d97a62f99759509ac587"
     };
 
-    // Init
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -139,9 +139,8 @@
     rollBtn.addEventListener('click', () => {
       const name = nameInput.value.trim() || 'Unknown';
       const value = Math.floor(Math.random() * 100) + 1;
-      const time = Date.now();
 
-      db.ref('rolls').push({ name, value, time });
+      db.ref('rolls').push({ name, value });
     });
 
     // Reset handler
